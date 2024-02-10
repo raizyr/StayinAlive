@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Audio;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using StardewModdingAPI.Events;
 using StardewModdingAPI;
 using StardewValley;
@@ -39,10 +40,8 @@ namespace StayinAlive.Framework
         internal void GameLoop_UpdateTicked(object sender, UpdateTickedEventArgs e)
         {
             if (!Context.IsWorldReady) return;
-            var _maxHealth = Math.Max(Game1.player.health, Game1.player.maxHealth);
-            var CurrentHealthPercent = (float)Game1.player.health / _maxHealth;
 
-            if (CurrentHealthPercent < 0.5 && Game1.showingHealth)
+            if (this.Mod.healthmonitor.HealthPercent < 0.5 && Game1.showingHealth)
             {
                 Game1.playSound(cue.name);
             }

@@ -20,6 +20,7 @@ namespace StayinAlive
     {
         private LifeAlert lifeAlert;
         private OverheadHealthbar healthbar;
+        private HealthMonitor healthmonitor;
 
         private ModConfig Config;
 
@@ -27,6 +28,7 @@ namespace StayinAlive
         {
             this.Config = this.Helper.ReadConfig<ModConfig>();
 
+            this.healthmonitor = new HealthMonitor(this);
             this.healthbar = new OverheadHealthbar(this);
             this.lifeAlert = new LifeAlert(this);
 
@@ -40,10 +42,6 @@ namespace StayinAlive
             OverheadHealthbar.Texture = this.Helper.ModContent.Load<Texture2D>("assets/healthbar.png");
             this.Monitor.Log("Textures loaded", LogLevel.Debug);
 
-            
-
-            
-
             // get Generic Mod Config Menu's API (if it's installed)
             var configMenu = this.Helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
             if (configMenu is null)
@@ -54,14 +52,15 @@ namespace StayinAlive
 
         }
 
-        private void Display_RenderedWorld(object sender, RenderedWorldEventArgs e)
+        private async void Display_RenderedWorld(object sender, RenderedWorldEventArgs e)
         {
-            OverheadHealthbar.Display_RenderedWorld(sender, e);
+            await this.healthbar.Display_RenderedWorld(sender, e);
         }
 
-        private void GameLoop_UpdateTicked(object sender, UpdateTickedEventArgs e)
+        private async void GameLoop_UpdateTicked(object sender, UpdateTickedEventArgs e)
         {
-            this.lifeAlert.GameLoop_UpdateTicked(sender, e);
+            await this.healthmonitor.GameLoop_UpdateTicked(sender, e);
+            await this.lifeAlert.GameLoop_UpdateTicked(sender, e);
 
         }
 
@@ -88,6 +87,8 @@ namespace StayinAlive
                 getValue: () => this.Config.HideOverheadHealthbarWhenFull,
                 setValue: value => this.Config.HideOverheadHealthbarWhenFull = value
             );
+
+            menu.Add
 
         }
     }
