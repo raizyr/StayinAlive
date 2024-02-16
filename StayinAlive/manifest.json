@@ -5,5 +5,5 @@
   "Description": "Combat convenience features.  Overhead healthbar and audible low health alert.",
   "UniqueID": "Raizyr.StayinAlive",
   "EntryDll": "StayinAlive.dll",
-  "UpdateKeys": []
+  "UpdateKeys": [ "Github:Raizyr/StayinAlive" ]
 }

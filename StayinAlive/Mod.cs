@@ -1,95 +1,92 @@
-﻿using System;
-using System.IO;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Audio;
+﻿using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
-using StardewModdingAPI.Utilities;
-using StardewValley;
 using StardewValley.Monsters;
-using StayinAlive.Framework;
-using GenericModConfigMenu;
+using StayinAlive.Compatibility;
+using StayinAlive.Infrastructure;
+using StayinAlive.LifeAlert;
+using StayinAlive.Options;
 
 
 namespace StayinAlive
 {
     internal sealed class Mod : StardewModdingAPI.Mod
     {
-        private LifeAlert lifeAlert;
-        private OverheadHealthbar healthbar;
-        private HealthMonitor healthmonitor;
+        public static IMonitor? MonitorObject { get; private set; }
 
-        private ModConfig Config;
+        private ModConfig? _modConfig;
+
+        private ModOptions? _modOptions;
+        private ModOptionsPageHandler? _modOptionsPageHandler;
+        private HealthMonitor? _healthMonitor;
 
         public override void Entry(IModHelper helper)
         {
-            this.Config = this.Helper.ReadConfig<ModConfig>();
+            MonitorObject = Monitor;
+            _modConfig = Helper.ReadConfig<ModConfig>();
+            _healthMonitor = new HealthMonitor();
+            _healthMonitor.Entry(helper);
 
-            this.healthmonitor = new HealthMonitor(this);
-            this.healthbar = new OverheadHealthbar(this);
-            this.lifeAlert = new LifeAlert(this);
 
-            this.Helper.Events.Display.RenderedWorld += Display_RenderedWorld;
-            this.Helper.Events.GameLoop.UpdateTicked += GameLoop_UpdateTicked;
-            this.Helper.Events.GameLoop.GameLaunched += GameLoop_GameLaunched;
+            helper.Events.GameLoop.ReturnedToTitle += OnReturnedToTitle;
+            helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
+            helper.Events.GameLoop.Saved += OnSaved;
+            helper.Events.GameLoop.GameLaunched += OnGameLaunched;
         }
 
-        private void GameLoop_GameLaunched(object sender, GameLaunchedEventArgs e)
+        private void OnReturnedToTitle(object sender, ReturnedToTitleEventArgs e)
         {
-            OverheadHealthbar.Texture = this.Helper.ModContent.Load<Texture2D>("assets/healthbar.png");
-            this.Monitor.Log("Textures loaded", LogLevel.Debug);
+            // Unload if the main player quits.
+            if (Context.ScreenId != 0) return;
 
-            // get Generic Mod Config Menu's API (if it's installed)
-            var configMenu = this.Helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
+            _modOptionsPageHandler?.Dispose();
+            _modOptionsPageHandler = null;
+        }
+
+        private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
+        {
+            if (Context.ScreenId != 0) return;
+
+            _modOptions = Helper.Data.ReadJsonFile<ModOptions>($"data/{Constants.SaveFolderName}.json") 
+                ?? new ModOptions();
+
+            _modOptionsPageHandler = new ModOptionsPageHandler(Helper, _modOptions, _healthMonitor, _modConfig.ShowOptionsTabInMenu);
+        }
+
+        private void OnSaved(object sender, SavedEventArgs e)
+        {
+            if (Context.ScreenId != 0) return;
+
+            Helper.Data.WriteJsonFile($"data/{Constants.SaveFolderName}.json", _modOptions);
+        }
+
+        private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
+        {
+            var modVersion = Helper.ModRegistry.Get("spacechase0.GenericModConfigMenu")?.Manifest?.Version;
+            var minModVersion = "1.6.0";
+            if (modVersion?.IsOlderThan(minModVersion) == true)
+            {
+                Monitor.Log($"Detected Generic Mod Config menue {modVersion} but expected {minModVersion} or newer. Disabling integration with th at mod.", LogLevel.Warn);
+                return;
+            }
+
+            var configMenu = Helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
             if (configMenu is null)
                 return;
 
-            this.RegisterConfigMenu(configMenu);
-
-
-        }
-
-        private async void Display_RenderedWorld(object sender, RenderedWorldEventArgs e)
-        {
-            await this.healthbar.Display_RenderedWorld(sender, e);
-        }
-
-        private async void GameLoop_UpdateTicked(object sender, UpdateTickedEventArgs e)
-        {
-            await this.healthmonitor.GameLoop_UpdateTicked(sender, e);
-            await this.lifeAlert.GameLoop_UpdateTicked(sender, e);
-
-        }
-
-        private void RegisterConfigMenu(IGenericModConfigMenuApi menu)
-        {
-            menu.Register(
-                mod: this.ModManifest,
-                reset: () => this.Config = new ModConfig(),
-                save: () => this.Helper.WriteConfig(this.Config)
+            configMenu.Register(
+                mod: ModManifest,
+                reset: () => _modConfig = new ModConfig(),
+                save: () => Helper.WriteConfig(_modConfig)
             );
 
-            menu.AddBoolOption(
-                mod: this.ModManifest,
-                name: () => "Always Show Overhead Healthbar",
-                tooltip: () => "If checked, Overhead Healthbar shows even in peaceful areas.  If unchecked, the Overhead Healthbar will only show in combat areas.",
-                getValue: () => this.Config.AlwaysShowOverheadHealthbar,
-                setValue: value => this.Config.AlwaysShowOverheadHealthbar = value
+            configMenu.AddBoolOption(
+                mod: ModManifest,
+                name: () => "Show option in in-game configMenu",
+                tooltip: () => "Enables an extra tab in the in-game configMenu where you can configure every options for this mod.",
+                getValue: () => _modConfig.ShowOptionsTabInMenu,
+                setValue: value => _modConfig.ShowOptionsTabInMenu = value
             );
-
-            menu.AddBoolOption(
-                mod: this.ModManifest,
-                name: () => "Hide Overhead Healthbar When Full",
-                tooltip: () => "If checked, Overhead Healthbar shows only when hurt.",
-                getValue: () => this.Config.HideOverheadHealthbarWhenFull,
-                setValue: value => this.Config.HideOverheadHealthbarWhenFull = value
-            );
-
-            menu.Add
-
         }
     }
 }

@@ -1,0 +1,9 @@
+{
+  "ShowHealthbar": "Show Overhead Healthbar",
+  "ShowInPeace": "Show in Peaceful Areas",
+  "HideWhenFull": "Hide When Full",
+  "HealthbarColor": "Bar Color",
+  "HealthbarBackgroundColore": "Background Color",
+  "TextureBorderColor": "Border Color",
+  "EnableLowHealthAlarm": "Enable Low Health Alarm"
+}
