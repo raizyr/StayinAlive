@@ -10,7 +10,7 @@ using StayinAlive.Options;
 
 namespace StayinAlive
 {
-    internal sealed class Mod : StardewModdingAPI.Mod
+    internal sealed class ModEntry : Mod
     {
         public static IMonitor? MonitorObject { get; private set; }
 

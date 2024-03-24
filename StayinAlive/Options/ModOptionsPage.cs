@@ -332,5 +332,29 @@ namespace StayinAlive.Options
             if (_hoverText != "")
                 IClickableMenu.drawHoverText(batch, _hoverText, Game1.smallFont);
         }
+
+        internal void SaveState(ModOptionsPageState state)
+        {
+            state.currentIndex = _currentItemIndex;
+            state.currentComponent = currentlySnappedComponent?.myID;
+        }
+
+        internal void LoadState(ModOptionsPageState state)
+        {
+            if (state.currentIndex is int index)
+            {
+                _currentItemIndex = index;
+            }
+
+            if (state.currentComponent is int componentID)
+            {
+                ClickableComponent? component = getComponentWithID(componentID);
+                if (component != null)
+                {
+                    currentlySnappedComponent = component;
+                    snapCursorToCurrentSnappedComponent();
+                }
+            }
+        }
     }
 }
