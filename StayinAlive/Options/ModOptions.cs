@@ -1,9 +1,8 @@
-﻿using StayinAlive.OverheadHealthbar;
+﻿using StardewValley;
+using StardewModdingAPI;
+using StayinAlive.Infrastructure.Extensions;
+using StayinAlive.OverheadHealthbar;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StayinAlive.Options
 {
@@ -12,7 +11,7 @@ namespace StayinAlive.Options
         public bool ShowHealthbar { get; set; } = true;
         public bool ShowInPeace { get; set; } = false;
         public bool HideWhenFull { get; set; } = false;
-        public Colors HealthbarColor { get; set; } = Colors.Crimson;
+        public Colors HealthbarColor { get; set; } = Colors.Red;
         public Colors HealthbarBackgroundColor { get; set; } = Colors.Black;
         public Colors TextureBorderColor { get; set; } = Colors.White;
 

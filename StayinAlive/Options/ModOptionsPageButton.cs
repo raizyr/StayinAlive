@@ -13,22 +13,22 @@ namespace StayinAlive.Options
     {
         public Rectangle Bounds { get; }
 
-        public event EventHandler OnLeftClicked;
+        public event EventHandler? OnLeftClicked;
 
         public ModOptionsPageButton(IModEvents events)
         {
             width = 64;
             height = 64;
-            GameMenu activeClickableMenu = Game1.activeClickableMenu as GameMenu;
+            GameMenu? activeClickableMenu = Game1.activeClickableMenu as GameMenu;
 
-            xPositionOnScreen = activeClickableMenu.xPositionOnScreen + activeClickableMenu.width - 264;
+            xPositionOnScreen = activeClickableMenu!.xPositionOnScreen + activeClickableMenu.width - 264;
             yPositionOnScreen = activeClickableMenu.yPositionOnScreen + 16;
             Bounds = new Rectangle(xPositionOnScreen, yPositionOnScreen, width, height);
             events.Input.ButtonPressed += OnButtonPressed;
             events.Display.MenuChanged += OnMenuChanged;
         }
 
-        private void OnMenuChanged(object sender, MenuChangedEventArgs e)
+        private void OnMenuChanged(object? sender, MenuChangedEventArgs e)
         {
             if (e.NewMenu is GameMenu menu)
             {
@@ -36,7 +36,7 @@ namespace StayinAlive.Options
             }
         }
 
-        public void OnButtonPressed(object sender, ButtonPressedEventArgs e)
+        public void OnButtonPressed(object? sender, ButtonPressedEventArgs e)
         {
             if (e.Button == SButton.MouseLeft || e.Button == SButton.ControllerA)
             {
@@ -45,7 +45,7 @@ namespace StayinAlive.Options
                 if (isWithinBounds(x, y))
                 {
                     receiveLeftClick(x, y);
-                    OnLeftClicked?.Invoke(this, null);
+                    OnLeftClicked?.Invoke(this, new EventArgs());
                 }
             }
         }

@@ -44,10 +44,12 @@ namespace StayinAlive.Options
                 helper.Events.Display.WindowResized += OnWindowResized;
             }
 
+            _elementsToDispose = new List<IDisposable>();
+
             if (healthMonitor != null)
             {
-                var healthbar = new Healthbar(helper, options, healthMonitor);
-                var lowHealthAlarm = new LowHealthAlarm(helper, options, healthMonitor);
+                var healthbar = new Healthbar(helper, ref options, healthMonitor);
+                var lowHealthAlarm = new LowHealthAlarm(helper, ref options, healthMonitor);
 
                 _elementsToDispose = new List<IDisposable>()
                 {
@@ -56,13 +58,15 @@ namespace StayinAlive.Options
                 };
 
                 int whichOption = 1;
-                Version thisVersion = Assembly.GetAssembly(GetType()).GetName().Version;
-                _optionsElements.Add(new ModOptionsElement("StayinAlive v" + thisVersion.Major + "." + thisVersion.Minor + "." + thisVersion.Build));
+                Version thisVersion = Assembly.GetAssembly(GetType())!.GetName().Version;
+                _optionsElements.Add(new ModOptionsElement("StayinAlive v" + thisVersion!.Major + "." + thisVersion.Minor + "." + thisVersion.Build));
 
                 var healthbarCheckbox = new ModOptionsCheckbox(_helper.SafeGetString(nameof(options.ShowHealthbar)), whichOption++, healthbar.ToggleOption, () => options.ShowHealthbar, v => options.ShowHealthbar = v);
                 _optionsElements.Add(healthbarCheckbox);
                 _optionsElements.Add(new ModOptionsCheckbox(_helper.SafeGetString(nameof(options.ShowInPeace)), whichOption++, healthbar.ToggleShowInPeace, () => options.ShowInPeace, v => { options.ShowInPeace = v; options.HideWhenFull = !v; }, healthbarCheckbox));
                 _optionsElements.Add(new ModOptionsCheckbox(_helper.SafeGetString(nameof(options.HideWhenFull)), whichOption++, healthbar.ToggleHideWhenFull, () => options.HideWhenFull, v => { options.HideWhenFull = v; options.ShowInPeace = !v; }, healthbarCheckbox));
+                _optionsElements.Add(new ModOptionsDropDown(_helper.SafeGetString(nameof(options.HealthbarColor)), whichOption++, () => options.HealthbarColor.Options(), () => options.HealthbarColor.DisplayOptions(), () => options.HealthbarColor.ToString() , v => { options.HealthbarColor = Enum.Parse<Colors>(v); }, healthbarCheckbox));
+                _optionsElements.Add(new ModOptionsDropDown(_helper.SafeGetString(nameof(options.HealthbarBackgroundColor)), whichOption++, () => options.HealthbarBackgroundColor.Options(), () => options.HealthbarBackgroundColor.DisplayOptions(), () => options.HealthbarBackgroundColor.ToString(), v => { options.HealthbarBackgroundColor = Enum.Parse<Colors>(v); }, healthbarCheckbox));
 
                 var lowHealthAlarmCheckbox = new ModOptionsCheckbox(_helper.SafeGetString(nameof(options.EnableLowHealthAlarm)), whichOption++, lowHealthAlarm.ToggleOption, () => options.EnableLowHealthAlarm, v => options.EnableLowHealthAlarm = v);
                 _optionsElements.Add(lowHealthAlarmCheckbox);
@@ -75,7 +79,7 @@ namespace StayinAlive.Options
                 item.Dispose();
         }
 
-        private void OnButtonLeftClicked(object sender, EventArgs e)
+        private void OnButtonLeftClicked(object? sender, EventArgs e)
         {
             // Do not activate when an action is being remapped
             if (Game1.activeClickableMenu is GameMenu gameMenu && gameMenu.readyToClose())
@@ -122,7 +126,7 @@ namespace StayinAlive.Options
             }
         }
 
-        private void OnRenderingMenu(object sender, RenderingActiveMenuEventArgs e)
+        private void OnRenderingMenu(object? sender, RenderingActiveMenuEventArgs e)
         {
             if (_showPersonalConfigButton)
             {
@@ -141,7 +145,7 @@ namespace StayinAlive.Options
             }
         }
 
-        private void OnRenderedMenu(object sender, RenderedActiveMenuEventArgs e)
+        private void OnRenderedMenu(object? sender, RenderedActiveMenuEventArgs e)
         {
             if (_showPersonalConfigButton
                 && Game1.activeClickableMenu is GameMenu gameMenu
@@ -159,7 +163,7 @@ namespace StayinAlive.Options
             }
         }
 
-        private void OnWindowClientSizeChanged(object sender, EventArgs e)
+        private void OnWindowClientSizeChanged(object? sender, EventArgs e)
         {
             if (_showPersonalConfigButton)
             {
@@ -177,7 +181,7 @@ namespace StayinAlive.Options
             }
         }
 
-        private void OnWindowResized(object sender, EventArgs e)
+        private void OnWindowResized(object? sender, EventArgs e)
         {
             if (_windowResizing)
             {
@@ -196,7 +200,7 @@ namespace StayinAlive.Options
 
         private void DrawButton(GameMenu gameMenu)
         {
-            _modOptionsPageButton.yPositionOnScreen = gameMenu.yPositionOnScreen + (gameMenu.currentTab == _modOptionsTabPageNumber ? 24 : 16);
+            _modOptionsPageButton!.yPositionOnScreen = gameMenu.yPositionOnScreen + (gameMenu.currentTab == _modOptionsTabPageNumber ? 24 : 16);
             _modOptionsPageButton.draw(Game1.spriteBatch);
         }
     }

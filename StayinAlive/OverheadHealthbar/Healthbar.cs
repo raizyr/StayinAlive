@@ -4,10 +4,13 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using System;
+using System.Collections.Generic;
 using StayinAlive.Options;
 using StayinAlive.Infrastructure.Extensions;
 using StardewValley.Locations;
 using StayinAlive.Infrastructure;
+using System.Linq;
+using System.Reflection;
 
 
 namespace StayinAlive.OverheadHealthbar
@@ -30,7 +33,7 @@ namespace StayinAlive.OverheadHealthbar
         internal Texture2D Texture;
         internal static int HeightAboveHead = 8;
 
-        public Healthbar(IModHelper helper, ModOptions options, HealthMonitor healthMonitor)
+        public Healthbar(IModHelper helper, ref ModOptions options, HealthMonitor healthMonitor)
         {
             _helper = helper;
             _options = options;
@@ -120,7 +123,7 @@ namespace StayinAlive.OverheadHealthbar
             return pixel;
         });
 
-        internal void OnRenderedWorld(object sender, RenderedWorldEventArgs e)
+        internal void OnRenderedWorld(object? sender, RenderedWorldEventArgs e)
         {
             if (!Context.IsWorldReady) return;
             if (HideWhenFull && _healthMonitor.IsMax) return;

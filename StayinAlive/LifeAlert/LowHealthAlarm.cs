@@ -20,7 +20,7 @@ namespace StayinAlive.LifeAlert
         private readonly HealthMonitor _healthMonitor;
         private bool Enabled { get; set; }
 
-        internal LowHealthAlarm(IModHelper helper, ModOptions options, HealthMonitor healthMonitor)
+        internal LowHealthAlarm(IModHelper helper, ref ModOptions options, HealthMonitor healthMonitor)
         {
             _helper = helper;
             _options = options;

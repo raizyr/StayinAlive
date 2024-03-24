@@ -15,7 +15,7 @@ namespace StayinAlive.Options
 
         private List<ClickableComponent> _optionSlots = new();
         private List<ModOptionsElement> _options;
-        private string _hoverText;
+        private string? _hoverText;
         private int _optionsSlotHeld;
         private int _currentItemIndex;
         private bool _isScrolling;
@@ -75,7 +75,7 @@ namespace StayinAlive.Options
             events.Display.MenuChanged += OnMenuChanged;
         }
 
-        private void OnMenuChanged(object sender, MenuChangedEventArgs e)
+        private void OnMenuChanged(object? sender, MenuChangedEventArgs e)
         {
             if (e.NewMenu is GameMenu)
             {

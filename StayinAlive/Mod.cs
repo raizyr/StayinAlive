@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley.Monsters;
@@ -34,7 +34,7 @@ namespace StayinAlive
             helper.Events.GameLoop.GameLaunched += OnGameLaunched;
         }
 
-        private void OnReturnedToTitle(object sender, ReturnedToTitleEventArgs e)
+        private void OnReturnedToTitle(object? sender, ReturnedToTitleEventArgs e)
         {
             // Unload if the main player quits.
             if (Context.ScreenId != 0) return;
@@ -43,24 +43,24 @@ namespace StayinAlive
             _modOptionsPageHandler = null;
         }
 
-        private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
+        private void OnSaveLoaded(object? sender, SaveLoadedEventArgs e)
         {
             if (Context.ScreenId != 0) return;
 
             _modOptions = Helper.Data.ReadJsonFile<ModOptions>($"data/{Constants.SaveFolderName}.json") 
                 ?? new ModOptions();
 
-            _modOptionsPageHandler = new ModOptionsPageHandler(Helper, _modOptions, _healthMonitor, _modConfig.ShowOptionsTabInMenu);
+            _modOptionsPageHandler = new ModOptionsPageHandler(Helper, _modOptions, _healthMonitor, _modConfig!.ShowOptionsTabInMenu);
         }
 
-        private void OnSaved(object sender, SavedEventArgs e)
+        private void OnSaved(object? sender, SavedEventArgs e)
         {
             if (Context.ScreenId != 0) return;
 
             Helper.Data.WriteJsonFile($"data/{Constants.SaveFolderName}.json", _modOptions);
         }
 
-        private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
+        private void OnGameLaunched(object? sender, GameLaunchedEventArgs e)
         {
             var modVersion = Helper.ModRegistry.Get("spacechase0.GenericModConfigMenu")?.Manifest?.Version;
             var minModVersion = "1.6.0";
@@ -77,15 +77,15 @@ namespace StayinAlive
             configMenu.Register(
                 mod: ModManifest,
                 reset: () => _modConfig = new ModConfig(),
-                save: () => Helper.WriteConfig(_modConfig)
+                save: () => Helper.WriteConfig(_modConfig!)
             );
 
             configMenu.AddBoolOption(
                 mod: ModManifest,
                 name: () => "Show option in in-game configMenu",
                 tooltip: () => "Enables an extra tab in the in-game configMenu where you can configure every options for this mod.",
-                getValue: () => _modConfig.ShowOptionsTabInMenu,
-                setValue: value => _modConfig.ShowOptionsTabInMenu = value
+                getValue: () => _modConfig!.ShowOptionsTabInMenu,
+                setValue: value => _modConfig!.ShowOptionsTabInMenu = value
             );
         }
     }
